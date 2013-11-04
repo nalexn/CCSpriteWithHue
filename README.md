@@ -2,9 +2,9 @@
 
 `CCSpriteWithHue` is a subclass of `CCSprite` from [cocos2d](https://github.com/cocos2d/cocos2d-iphone) which allows to programmatically change the hue of the sprite in runtime using a fragment shader.
 
-In games it is often necessary to have multiple characters differ only in color, for example, to play in a different teams.
+In games it is often necessary for multiple characters to differ only in color, for example, to play in different teams.
 
-You can certainly duplicate all animations in a different color palette and attach them to the project, but it greatly increases the size of the application and gives user the choice only between a limited number of color sets.
+You can certainly duplicate all animations in a different color palette and attach them to the project, but it drastically increases the size of the application and restricts user to choose from a limited number of color sets.
 
 There is an alternative approach with `color` property of `CCSprite`, but it tints the sprite in a single color and it loses its colorfulness.
  
@@ -29,7 +29,7 @@ CCSpriteWithHue * sprite = [CCSpriteWithHue spriteWithFile:@"mySprite.png"];
 sprite.hue = M_PI_4;
 ```
 
-The hue property represents the angle of hue rotation from __0 to 2 * π__ radians, but you can specify any value, it will remove a complete revolutions.
+The hue property represents the hue rotation angle from __0 to 2 * π__ radians, but you can specify any value, it will remove a complete revolutions.
 
 ---
 
