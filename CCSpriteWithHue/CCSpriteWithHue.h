@@ -17,6 +17,16 @@
     GLint _alphaLocation;
 }
 
-@property (nonatomic, unsafe_unretained) CGFloat hue; // Hue rotation angle in radians. Default is 0.0, i.e. natural hue
+// Hue rotation angle in radians. Default is 0.0, i.e. natural hue
+@property (nonatomic, unsafe_unretained) CGFloat hue;
+
+@end
+
+@interface CCSpriteWithHueWithRedThreshold : CCSpriteWithHue {
+    GLint _redThresholdLocation;
+}
+
+// Value from 0.0 to 1.0. Hue rotation is applied only for pixels with red component lower than this value
+@property (nonatomic, unsafe_unretained) CGFloat redThreshold;
 
 @end

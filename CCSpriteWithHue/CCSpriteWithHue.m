@@ -13,6 +13,7 @@
 #import "cocos2d.h"
 
 const GLchar * colorRotationShaderBody(void);
+const GLchar * colorRotationWithRedThresholdShaderBody(void);
 void xRotateMat(float mat[3][3], float rs, float rc);
 void yRotateMat(float mat[3][3], float rs, float rc);
 void zRotateMat(float mat[3][3], float rs, float rc);
@@ -35,25 +36,40 @@ void premultiplyAlpha(GLfloat mat[3][3], float alpha);
     self = [super initWithTexture:texture rect:rect rotated:rotated];
     if (self)
     {
-        _hue = 0.0;
+        [self setupDefaultSettings];
         [self initShader];
     }
     return self;
 }
 
+- (void) setupDefaultSettings
+{
+    _hue = 0.0;
+}
+
 - (void) initShader
 {
     self.shaderProgram = [[[CCGLProgram alloc] initWithVertexShaderByteArray:ccPositionTextureA8Color_vert
-                                                     fragmentShaderByteArray:colorRotationShaderBody()]
+                                                     fragmentShaderByteArray:[self shaderBody]]
                           autorelease];
     [_shaderProgram addAttribute:kCCAttributeNamePosition index:kCCVertexAttrib_Position];
     [_shaderProgram addAttribute:kCCAttributeNameTexCoord index:kCCVertexAttrib_TexCoords];
     [_shaderProgram link];
     [_shaderProgram updateUniforms];
     
+    [self getUniformLocations];
+    [self updateColor];
+}
+
+- (const GLchar *) shaderBody
+{
+    return colorRotationShaderBody();
+}
+
+- (void) getUniformLocations
+{
     _hueLocation = glGetUniformLocation(_shaderProgram->_program, "u_hue");
     _alphaLocation = glGetUniformLocation(_shaderProgram->_program, "u_alpha");
-    [self updateColor];
 }
 
 - (void) updateColorMatrix
@@ -91,6 +107,45 @@ void premultiplyAlpha(GLfloat mat[3][3], float alpha);
 
 @end
 
+@implementation CCSpriteWithHueWithRedThreshold
+
+- (void) setupDefaultSettings
+{
+    [super setupDefaultSettings];
+    _redThreshold = 0.67;
+}
+
+- (const GLchar *) shaderBody
+{
+    return colorRotationWithRedThresholdShaderBody();
+}
+
+- (void) getUniformLocations
+{
+    [super getUniformLocations];
+    _redThresholdLocation = glGetUniformLocation(_shaderProgram->_program, "u_redThreshold");
+}
+
+- (void) updateRedThreshold
+{
+    [_shaderProgram use];
+    glUniform1f(_redThresholdLocation, [self redThreshold]);
+}
+
+- (void) setRedThreshold:(CGFloat)redThreshold
+{
+    _redThreshold = redThreshold;
+    [self updateRedThreshold];
+}
+
+-(void) updateColor
+{
+    [super updateColor];
+    [self updateRedThreshold];
+}
+
+@end
+
 #pragma mark -
 
 const GLchar * colorRotationShaderBody()
@@ -114,6 +169,35 @@ const GLchar * colorRotationShaderBody()
     }                                                           \n\
 ";
 }
+
+const GLchar * colorRotationWithRedThresholdShaderBody()
+{
+    return
+    "                                                                   \n\
+    #ifdef GL_ES                                                        \n\
+        precision mediump float;                                        \n\
+    #endif                                                              \n\
+                                                                        \n\
+        varying vec2 v_texCoord;                                        \n\
+        uniform sampler2D u_texture;                                    \n\
+        uniform mat3 u_hue;                                             \n\
+        uniform float u_alpha;                                          \n\
+        uniform float u_redThreshold;                                   \n\
+                                                                        \n\
+        void main()                                                     \n\
+        {                                                               \n\
+            vec4 pixColor = texture2D(u_texture, v_texCoord);           \n\
+            if (pixColor.r > u_redThreshold) {                          \n\
+                gl_FragColor = pixColor;                                \n\
+            } else {                                                    \n\
+                vec3 rgbColor = u_hue * pixColor.rgb;                   \n\
+                gl_FragColor = vec4(rgbColor, pixColor.a * u_alpha);    \n\
+            }                                                           \n\
+        }                                                               \n\
+    ";
+}
+
+#pragma mark -
 
 void xRotateMat(float mat[3][3], float rs, float rc)
 {

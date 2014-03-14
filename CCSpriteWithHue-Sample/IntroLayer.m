@@ -38,7 +38,7 @@
             [spriteFrames addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frameName]];
         }
         CCAnimation * animation = [CCAnimation animationWithSpriteFrames:spriteFrames delay:0.1];
-        self.animatedSprite = [CCSpriteWithHue spriteWithSpriteFrame:[spriteFrames objectAtIndex:0]];
+        self.animatedSprite = [CCSpriteWithHueWithRedThreshold spriteWithSpriteFrame:[spriteFrames objectAtIndex:0]];
         [_animatedSprite runAction:[CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:animation]]];
         _animatedSprite.position = ccp(winSize.width * 0.5, winSize.height * 0.35);
         [self addChild:_animatedSprite];
