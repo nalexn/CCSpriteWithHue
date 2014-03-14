@@ -12,7 +12,11 @@
 #import "CCSpriteWithHue.h"
 #import "cocos2d.h"
 
-const GLchar * colorRotationShaderBody();
+const GLchar * colorRotationShaderBody(void);
+void xRotateMat(float mat[3][3], float rs, float rc);
+void yRotateMat(float mat[3][3], float rs, float rc);
+void zRotateMat(float mat[3][3], float rs, float rc);
+void matrixMult(float a[3][3], float b[3][3], float c[3][3]);
 void hueMatrix(GLfloat mat[3][3], float angle);
 void premultiplyAlpha(GLfloat mat[3][3], float alpha);
 
@@ -162,12 +166,16 @@ void matrixMult(float a[3][3], float b[3][3], float c[3][3])
 	int x, y;
 	float temp[3][3];
     
-	for(y=0; y<3; y++)
-		for(x=0; x<3; x++)
+	for(y=0; y<3; y++) {
+		for(x=0; x<3; x++) {
 			temp[y][x] = b[y][0] * a[0][x] + b[y][1] * a[1][x] + b[y][2] * a[2][x];
-	for(y=0; y<3; y++)
-		for(x=0; x<3; x++)
+        }
+    }
+	for(y=0; y<3; y++) {
+		for(x=0; x<3; x++) {
 			c[y][x] = temp[y][x];
+        }
+    }
 }
 
 void hueMatrix(GLfloat mat[3][3], float angle)
@@ -206,7 +214,9 @@ void hueMatrix(GLfloat mat[3][3], float angle)
 
 void premultiplyAlpha(GLfloat mat[3][3], float alpha)
 {
-    for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j)
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
             mat[i][j] *= alpha;
+        }
+    }
 }
